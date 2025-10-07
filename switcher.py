@@ -48,7 +48,7 @@ class KeyBinderGUI:
             {"name": "M-AID-1", "command": "t /rc 510"},
             {"name": "M-AID-2", "command": "t /rc 520"},
             {"name": "M-AID-3", "command": "t /rc 530"},
-            {"name": "Powrót", "command": "t /rc 692 "}
+            {"name": "Powrót", "command": "t /rc 666"}
         ]
         
         # Create save directory if it doesn't exist
@@ -207,3 +207,4 @@ class KeyBinderGUI:
 if __name__ == "__main__":
     binder = KeyBinderGUI()
     binder.run()
+
