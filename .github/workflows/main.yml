@@ -2,46 +2,41 @@ name: Build and Release EXE
 
 on:
   push:
-    branches: [ main ]
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
-  contents: write  # Needed to create releases
+  contents: write
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      - name: Install PyInstaller
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
+          pip install -r requirements.txt pyinstaller
 
       - name: Build EXE
-        run: pyinstaller --onefile switcher.py
-
-      - name: Create tag
-        id: tag
         run: |
-          $tag = "v" + (Get-Date -Format "yyyy.MM.dd.HHmmss")
-          echo "tag=$tag" >> $env:GITHUB_OUTPUT
-          git tag $tag
-          git push origin $tag
+          pyinstaller --onefile --noconsole ^
+            --hidden-import pynput.keyboard ^
+            --hidden-import pynput.mouse ^
+            --hidden-import win32gui ^
+            --hidden-import win32con ^
+            switcher.py
 
-      - name: Create GitHub Release
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Release ${{ steps.tag.outputs.tag }}"
           files: dist/switcher.exe
           generate_release_notes: true
         env:
