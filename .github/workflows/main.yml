@@ -1,10 +1,9 @@
-name: Build EXE with PyInstaller
+name: Build and Release EXE
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'  # triggers when you push a tag like v1.0.0
   workflow_dispatch:
 
 jobs:
@@ -18,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'  # or your preferred version
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -29,8 +28,10 @@ jobs:
         run: |
           pyinstaller --onefile switcher.py
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Create release
+        uses: softprops/action-gh-release@v2
         with:
-          name: switcher-exe
-          path: dist/switcher.exe
+          files: dist/switcher.exe
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
